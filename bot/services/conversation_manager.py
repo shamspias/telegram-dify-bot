@@ -3,6 +3,7 @@
 import uuid
 import structlog
 from typing import Dict, Optional
+from datetime import datetime
 
 from bot.models.schemas import UserConversation
 
@@ -21,12 +22,11 @@ class ConversationManager:
             conversation = UserConversation(
                 user_id=user_id,
                 username=username,
-                conversation_id=self._generate_conversation_id()
+                conversation_id=None  # Let API create the conversation
             )
             self._conversations[user_id] = conversation
-            logger.info("Created new conversation",
-                        user_id=user_id,
-                        conversation_id=conversation.conversation_id)
+            logger.info("Created new conversation placeholder",
+                        user_id=user_id)
 
         return self._conversations[user_id]
 
@@ -35,13 +35,20 @@ class ConversationManager:
         conversation = UserConversation(
             user_id=user_id,
             username=username,
-            conversation_id=self._generate_conversation_id()
+            conversation_id=None  # Let API create the conversation
         )
         self._conversations[user_id] = conversation
-        logger.info("Created new conversation",
-                    user_id=user_id,
-                    conversation_id=conversation.conversation_id)
+        logger.info("Created new conversation placeholder",
+                    user_id=user_id)
         return conversation
+
+    def update_conversation_id(self, user_id: str, conversation_id: str) -> None:
+        """Update conversation ID after API creates it."""
+        if user_id in self._conversations:
+            self._conversations[user_id].conversation_id = conversation_id
+            logger.info("Updated conversation ID",
+                        user_id=user_id,
+                        conversation_id=conversation_id)
 
     def get_conversation(self, user_id: str) -> Optional[UserConversation]:
         """Get user's current conversation."""
