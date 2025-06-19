@@ -1,4 +1,4 @@
-# Phyxie Telegram Bot
+# Dify Telegram Bot
 
 A sophisticated Telegram bot that integrates with the Phyxie AI assistant API from Dify, providing conversational AI capabilities with file upload support.
 
@@ -81,7 +81,7 @@ Maximum file size: 15MB (configurable)
 ## Project Structure
 
 ```
-phyxie-telegram-bot/
+dify-telegram-bot/
 ├── bot/
 │   ├── handlers/          # Command, message, and file handlers
 │   ├── services/          # API and conversation management
@@ -195,5 +195,5 @@ For issues and questions:
 ## Acknowledgments
 
 - Built with [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot)
-- Powered by Phyxie AI from Dify
+- Powered by [Algolyzer Lab](https://algolyzerlab.com)
 - Uses async/await for optimal performance
