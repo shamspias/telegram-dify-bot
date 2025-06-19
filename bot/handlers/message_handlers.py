@@ -31,22 +31,20 @@ class MessageHandlers:
         # Get or create conversation
         conversation = self.conversation_manager.get_or_create_conversation(user_id, username)
 
-        if not conversation.conversation_id:
-            await update.message.reply_text(
-                "❌ No active conversation. Please use /new to start a conversation."
-            )
-            return
-
         try:
             # Create chat message
             chat_message = ChatMessage(
                 query=message_text,
                 user=username,
-                conversation_id=conversation.conversation_id
+                conversation_id=conversation.conversation_id  # May be None for first message
             )
 
             # Send to Phyxie API
             response = await self.phyxie_service.send_message(chat_message)
+
+            # If this was the first message, update conversation ID
+            if not conversation.conversation_id and response.conversation_id:
+                self.conversation_manager.update_conversation_id(user_id, response.conversation_id)
 
             # Update conversation stats
             self.conversation_manager.increment_message_count(user_id)
@@ -58,7 +56,7 @@ class MessageHandlers:
             # Log successful interaction
             logger.info("Message processed successfully",
                         user_id=user_id,
-                        conversation_id=conversation.conversation_id,
+                        conversation_id=response.conversation_id,
                         message_id=response.message_id)
 
         except PhyxieAPIError as e:
@@ -82,12 +80,6 @@ class MessageHandlers:
         # Get or create conversation
         conversation = self.conversation_manager.get_or_create_conversation(user_id, username)
 
-        if not conversation.conversation_id:
-            await update.message.reply_text(
-                "❌ No active conversation. Please use /new to start a conversation."
-            )
-            return
-
         # Send initial message
         sent_message = await update.message.reply_text("💭 Thinking...")
 
@@ -102,11 +94,13 @@ class MessageHandlers:
             # Stream response
             full_answer = ""
             message_id = None
+            conversation_id = None
 
             async for chunk in self.phyxie_service.stream_message(chat_message):
                 if chunk.get("event") == "message":
                     answer_chunk = chunk.get("answer", "")
                     full_answer += answer_chunk
+                    conversation_id = chunk.get("conversation_id")
 
                     # Update message periodically
                     if len(full_answer) % 100 == 0:  # Update every 100 chars
@@ -114,6 +108,12 @@ class MessageHandlers:
 
                 elif chunk.get("event") == "message_end":
                     message_id = chunk.get("message_id")
+                    conversation_id = chunk.get("conversation_id")
+
+                    # If this was the first message, update conversation ID
+                    if not conversation.conversation_id and conversation_id:
+                        self.conversation_manager.update_conversation_id(user_id, conversation_id)
+
                     # Update conversation stats
                     self.conversation_manager.increment_message_count(user_id)
 
@@ -122,7 +122,7 @@ class MessageHandlers:
 
             logger.info("Streaming message processed successfully",
                         user_id=user_id,
-                        conversation_id=conversation.conversation_id,
+                        conversation_id=conversation_id,
                         message_id=message_id)
 
         except PhyxieAPIError as e:
