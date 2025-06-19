@@ -35,12 +35,6 @@ class FileHandlers:
         # Get or create conversation
         conversation = self.conversation_manager.get_or_create_conversation(user_id, username)
 
-        if not conversation.conversation_id:
-            await update.message.reply_text(
-                "❌ No active conversation. Please use /new to start a conversation."
-            )
-            return
-
         # Get the largest photo
         photo: PhotoSize = update.message.photo[-1]
         caption = update.message.caption or "Analyze this image"
@@ -81,6 +75,10 @@ class FileHandlers:
 
             response = await self.phyxie_service.send_message(chat_message)
 
+            # If this was the first message, update conversation ID
+            if not conversation.conversation_id and response.conversation_id:
+                self.conversation_manager.update_conversation_id(user_id, response.conversation_id)
+
             # Update conversation stats
             self.conversation_manager.increment_message_count(user_id)
 
@@ -112,12 +110,6 @@ class FileHandlers:
 
         # Get or create conversation
         conversation = self.conversation_manager.get_or_create_conversation(user_id, username)
-
-        if not conversation.conversation_id:
-            await update.message.reply_text(
-                "❌ No active conversation. Please use /new to start a conversation."
-            )
-            return
 
         document: Document = update.message.document
         caption = update.message.caption or f"Analyze this {document.file_name}"
@@ -171,6 +163,10 @@ class FileHandlers:
             )
 
             response = await self.phyxie_service.send_message(chat_message)
+
+            # If this was the first message, update conversation ID
+            if not conversation.conversation_id and response.conversation_id:
+                self.conversation_manager.update_conversation_id(user_id, response.conversation_id)
 
             # Update conversation stats
             self.conversation_manager.increment_message_count(user_id)
