@@ -39,10 +39,9 @@ class CommandHandlers:
         conversation = self.conversation_manager.create_new_conversation(user_id, username)
 
         await update.message.reply_text(
-            f"✨ New conversation started!\n"
-            f"Conversation ID: `{conversation.conversation_id}`\n\n"
-            f"You can now send me messages, images, or documents.",
-            parse_mode="Markdown"
+            f"✨ New conversation started!\n\n"
+            f"Send me your first message to begin chatting.\n"
+            f"You can send text, images, or documents."
         )
 
     @log_command
@@ -66,14 +65,13 @@ class CommandHandlers:
                 # Clear local conversation
                 self.conversation_manager.clear_conversation(user_id)
 
-                # Create new conversation
+                # Create new conversation placeholder
                 new_conversation = self.conversation_manager.create_new_conversation(user_id, username)
 
                 await update.message.reply_text(
                     f"🗑️ Previous conversation cleared!\n\n"
-                    f"✨ New conversation started!\n"
-                    f"Conversation ID: `{new_conversation.conversation_id}`",
-                    parse_mode="Markdown"
+                    f"✨ Ready to start fresh!\n"
+                    f"Send me a message to begin a new conversation."
                 )
             except Exception as e:
                 logger.error("Failed to clear conversation", error=str(e))
@@ -84,9 +82,8 @@ class CommandHandlers:
             # No existing conversation, just create new one
             new_conversation = self.conversation_manager.create_new_conversation(user_id, username)
             await update.message.reply_text(
-                f"✨ New conversation started!\n"
-                f"Conversation ID: `{new_conversation.conversation_id}`",
-                parse_mode="Markdown"
+                f"✨ Ready to start!\n"
+                f"Send me a message to begin a new conversation."
             )
 
     @log_command
