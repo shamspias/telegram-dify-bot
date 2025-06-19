@@ -6,3 +6,5 @@ pydantic-settings
 structlog
 tenacity
 aiofiles
+matplotlib
+pillow
