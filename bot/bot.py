@@ -45,36 +45,44 @@ class PhyxieBot:
 
     def _setup_handlers(self):
         """Set up message handlers."""
-        # Command handlers
-        self.application.add_handler(
-            CommandHandler("start", self.command_handlers.start_command)
-        )
-        self.application.add_handler(
-            CommandHandler("new", self.command_handlers.new_command)
-        )
-        self.application.add_handler(
-            CommandHandler("clear", self.command_handlers.clear_command)
-        )
-        self.application.add_handler(
-            CommandHandler("help", self.command_handlers.help_command)
-        )
+
+        # Command handlers - Create wrapper functions to properly bind self
+        async def start_command(update, context):
+            return await self.command_handlers.start_command(update, context)
+
+        async def new_command(update, context):
+            return await self.command_handlers.new_command(update, context)
+
+        async def clear_command(update, context):
+            return await self.command_handlers.clear_command(update, context)
+
+        async def help_command(update, context):
+            return await self.command_handlers.help_command(update, context)
+
+        async def handle_photo(update, context):
+            return await self.file_handlers.handle_photo(update, context)
+
+        async def handle_document(update, context):
+            return await self.file_handlers.handle_document(update, context)
+
+        async def handle_text_message(update, context):
+            return await self.message_handlers.handle_text_message(update, context)
+
+        # Register handlers
+        self.application.add_handler(CommandHandler("start", start_command))
+        self.application.add_handler(CommandHandler("new", new_command))
+        self.application.add_handler(CommandHandler("clear", clear_command))
+        self.application.add_handler(CommandHandler("help", help_command))
 
         # Photo handler
-        self.application.add_handler(
-            MessageHandler(filters.PHOTO, self.file_handlers.handle_photo)
-        )
+        self.application.add_handler(MessageHandler(filters.PHOTO, handle_photo))
 
         # Document handler
-        self.application.add_handler(
-            MessageHandler(filters.Document.ALL, self.file_handlers.handle_document)
-        )
+        self.application.add_handler(MessageHandler(filters.Document.ALL, handle_document))
 
         # Text message handler (should be last)
         self.application.add_handler(
-            MessageHandler(
-                filters.TEXT & ~filters.COMMAND,
-                self.message_handlers.handle_text_message
-            )
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_message)
         )
 
         # Error handler
