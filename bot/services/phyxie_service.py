@@ -63,7 +63,7 @@ class PhyxieService:
         async with aiohttp.ClientSession() as session:
             try:
                 async with session.post(url, headers=self.headers, json=payload) as response:
-                    if response.status != 200:
+                    if response.raise_for_status():
                         error_text = await response.text()
                         logger.error("Phyxie API error",
                                      status=response.status,
@@ -95,7 +95,7 @@ class PhyxieService:
         async with aiohttp.ClientSession() as session:
             try:
                 async with session.post(url, headers=headers, data=data) as response:
-                    if response.status != 200:
+                    if response.raise_for_status():
                         error_text = await response.text()
                         logger.error("File upload error",
                                      status=response.status,
@@ -169,7 +169,7 @@ class PhyxieService:
         async with aiohttp.ClientSession() as session:
             try:
                 async with session.post(url, headers=self.headers, json=payload) as response:
-                    if response.status != 200:
+                    if response.raise_for_status():
                         error_text = await response.text()
                         raise PhyxieAPIError(f"API error: {response.status} - {error_text}")
 
