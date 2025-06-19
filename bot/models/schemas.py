@@ -82,3 +82,4 @@ class FileUploadResponse:
     mime_type: str
     created_by: str
     created_at: int
+    preview_url: Optional[str] = None
