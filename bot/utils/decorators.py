@@ -12,7 +12,14 @@ def log_command(func):
     """Log command execution."""
 
     @functools.wraps(func)
-    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def wrapper(*args):
+        # Handle both bound methods (self, update, context) and functions (update, context)
+        if len(args) == 3:
+            self, update, context = args
+        else:
+            update, context = args
+            self = None
+
         user = update.effective_user
         command = update.message.text.split()[0] if update.message else "Unknown"
 
@@ -23,7 +30,10 @@ def log_command(func):
                     first_name=user.first_name)
 
         try:
-            return await func(update, context)
+            if self:
+                return await func(self, update, context)
+            else:
+                return await func(update, context)
         except Exception as e:
             logger.error("Command error",
                          command=command,
@@ -61,8 +71,19 @@ def typing_action(func):
     """Send typing action while processing."""
 
     @functools.wraps(func)
-    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def wrapper(*args):
+        # Handle both bound methods and functions
+        if len(args) == 3:
+            self, update, context = args
+        else:
+            update, context = args
+            self = None
+
         await update.message.reply_chat_action("typing")
-        return await func(update, context)
+
+        if self:
+            return await func(self, update, context)
+        else:
+            return await func(update, context)
 
     return wrapper
