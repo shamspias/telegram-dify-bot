@@ -2,6 +2,7 @@ python-telegram-bot
 python-dotenv
 aiohttp
 pydantic
+pydantic-settings
 structlog
 tenacity
 aiofiles
