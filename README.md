@@ -99,7 +99,7 @@ Additional settings in `.env`:
 ```env
 LOG_LEVEL=INFO                    # Logging level (DEBUG, INFO, WARNING, ERROR)
 MAX_FILE_SIZE_MB=15              # Maximum file size in MB
-ALLOWED_FILE_EXTENSIONS=jpg,jpeg,png,pdf,docx,xlsx  # Comma-separated list
+ALLOWED_FILE_EXTENSIONS=[jpg,jpeg,png,pdf,docx,xlsx]  # Comma-separated list
 ```
 
 ## Architecture
