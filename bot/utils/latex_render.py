@@ -25,8 +25,6 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from PIL import Image
 
-rcParams['text.usetex'] = False
-
 # ────────────────────────────────────────────────
 # 0. GLOBAL CONSTANTS
 # ────────────────────────────────────────────────
