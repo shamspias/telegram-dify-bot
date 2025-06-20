@@ -44,7 +44,7 @@ def _patch_macros(tex: str) -> str:
 
 def escape_latex(text: str) -> str:
     """
-    Escape LaTeX special chars in non-math parts for usetex=True.
+    Escape LaTeX special chars in NON-MATH parts ONLY.
     """
     escape_chars = {
         '&': r'\&',
@@ -58,20 +58,26 @@ def escape_latex(text: str) -> str:
         '^': r'\^{}',
         '\\': r'\textbackslash{}',
     }
+    # Split text into segments: math ($...$ or $$...$$) and non-math
+    pattern = re.compile(r"(\$\$.*?\$\$|\$.*?\$)", re.DOTALL)
 
-    def replacer(match):
-        part = match.group(0)
-        # If math ($...$), leave as is
-        if part.startswith("$") and part.endswith("$"):
-            return part
-        # Else, escape special chars
+    result = []
+    last = 0
+    for m in pattern.finditer(text):
+        # Escape the plain text before the math
+        non_math = text[last:m.start()]
         for char, escape in escape_chars.items():
-            part = part.replace(char, escape)
-        return part
-
-    # Split into math and non-math regions
-    pattern = r"(\$.*?\$|[^\$]+)"
-    return re.sub(pattern, replacer, text, flags=re.DOTALL)
+            non_math = non_math.replace(char, escape)
+        result.append(non_math)
+        # Do NOT touch the math block
+        result.append(m.group(0))
+        last = m.end()
+    # Handle trailing non-math
+    non_math = text[last:]
+    for char, escape in escape_chars.items():
+        non_math = non_math.replace(char, escape)
+    result.append(non_math)
+    return ''.join(result)
 
 
 def md_heading_to_latex(text: str) -> str:
